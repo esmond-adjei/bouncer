@@ -73,7 +73,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_CORE_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // ========== WINDOW CREATION ==========
-    GLFWwindow *window = glfwCreateWindow(600, 400, "Square", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(600, 400, "bouncer", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -139,7 +139,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("D:/Projects/dev-playground/learning_computer_graphics/bouncer/wall.jpg", &width, &height, &nrChannels, 0);
+    // have to use abosulte path here, haven't figured out why relative path doesn't work yet.
+    unsigned char *data = stbi_load("D:/Projects/dev-playground/learning_computer_graphics/bouncer/textures/wall.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
