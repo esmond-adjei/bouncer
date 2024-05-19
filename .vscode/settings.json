@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "listint": "bat",
+        "ostream": "cpp"
+    }
+}

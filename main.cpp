@@ -1,3 +1,9 @@
+/** =========================
+ * ID: 3019420
+ * REF: 20729960
+ * NAME: ESMOND ADJEI
+ * =========================
+ */
 #include <iostream>
 #include <glad/glad.h>
 #define GLFW_DLL
@@ -50,10 +56,10 @@ float OBJECT_SIZE = 0.2f;
 
 GLfloat vertices[] = {
     // positions                        // colors           // texture coords
-    -OBJECT_SIZE, -OBJECT_SIZE, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom-left
-     OBJECT_SIZE, -OBJECT_SIZE, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f, // bottom-right
-     OBJECT_SIZE,  OBJECT_SIZE, 0.0f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // top-right
-    -OBJECT_SIZE,  OBJECT_SIZE, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top-left
+    -OBJECT_SIZE, -OBJECT_SIZE, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
+     OBJECT_SIZE, -OBJECT_SIZE, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // bottom-right
+     OBJECT_SIZE, OBJECT_SIZE, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top-right
+    -OBJECT_SIZE, OBJECT_SIZE, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top-left
 };
 
 GLuint indices[] = {
@@ -62,7 +68,7 @@ GLuint indices[] = {
 };
 
 void onQuit(GLFWwindow *window);
-void processInput(GLFWwindow *window, glm::vec2 &velocity);
+void processInput(GLFWwindow *window, glm::vec2 &velocity, bool &isPaused);
 
 int main()
 {
@@ -139,8 +145,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     int width, height, nrChannels;
-    // have to use abosulte path here, haven't figured out why relative path doesn't work yet.
-    unsigned char *data = stbi_load("D:/Projects/dev-playground/learning_computer_graphics/bouncer/textures/wall.jpg", &width, &height, &nrChannels, 0);
+    // !!! have to use abosulte path here, if relavite path doesn't work.
+    unsigned char *data = stbi_load("./textures/wall.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -167,6 +173,7 @@ int main()
     // ========== TRANSFORMATION MATRIX INITIALIZATION ==========
     glm::mat4 transform = glm::mat4(1.0f);
     glm::vec2 velocity(0.00015f, 0.00010f);
+    bool isPaused = false;
 
     // ========== RENDER LOOP ==========
     while (!glfwWindowShouldClose(window))
@@ -179,22 +186,25 @@ int main()
         if (transform[3][0] + OBJECT_SIZE < 1.0f && transform[3][0] - OBJECT_SIZE > -1.0f &&
             transform[3][1] + OBJECT_SIZE < 1.0f && transform[3][1] - OBJECT_SIZE > -1.0f)
         {
-            processInput(window, velocity);
+            processInput(window, velocity, isPaused);
         }
 
-        // Update position
-        transform = glm::translate(transform, glm::vec3(velocity, 0.0f));
+        // Update position only if not paused
+        if (!isPaused)
+        {
+            transform = glm::translate(transform, glm::vec3(velocity, 0.0f));
 
-        // Check boundaries and handle bouncing
-        if (transform[3][0] + OBJECT_SIZE > 1.0f || transform[3][0] - OBJECT_SIZE < -1.0f)
-        {
-            velocity.x *= -1;
-            std::cout << "Impact velocity at X-Axis: (" << velocity.x << ", " << velocity.y << ")" << std::endl;
-        }
-        if (transform[3][1] + OBJECT_SIZE > 1.0f || transform[3][1] - OBJECT_SIZE < -1.0f)
-        {
-            velocity.y *= -1;
-            std::cout << "Impact velocity at Y-Axis: (" << velocity.x << ", " << velocity.y << ")" << std::endl;
+            // Check boundaries and handle bouncing
+            if (transform[3][0] + OBJECT_SIZE > 1.0f || transform[3][0] - OBJECT_SIZE < -1.0f)
+            {
+                velocity.x *= -1;
+                std::cout << "Impact velocity at X-Axis: (" << velocity.x << ", " << velocity.y << ")" << std::endl;
+            }
+            if (transform[3][1] + OBJECT_SIZE > 1.0f || transform[3][1] - OBJECT_SIZE < -1.0f)
+            {
+                velocity.y *= -1;
+                std::cout << "Impact velocity at Y-Axis: (" << velocity.x << ", " << velocity.y << ")" << std::endl;
+            }
         }
 
         glUseProgram(shaderProgram);
@@ -231,7 +241,7 @@ void onQuit(GLFWwindow *window)
 }
 
 // control the square with arrow keys
-void processInput(GLFWwindow *window, glm::vec2 &velocity)
+void processInput(GLFWwindow *window, glm::vec2 &velocity, bool &isPaused)
 {
     const float acceleration = 0.00005f;
     const float maxSpeed = 0.00015f;
@@ -250,7 +260,13 @@ void processInput(GLFWwindow *window, glm::vec2 &velocity)
     }
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
-        velocity.y += acceleration;
+        velocity.y += acceleration; 
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        isPaused = !isPaused;
+        while (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        { glfwPollEvents(); }
     }
 
     // Limit velocity to maximum speed
